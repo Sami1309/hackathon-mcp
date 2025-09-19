@@ -1,0 +1,7 @@
+{
+  "vulnerabilities": [
+    { "cveID": "CVE-2025-0001", "vendorProject": "Vendor", "product": "Product", "vulnerabilityName": "Test KEV Entry" },
+    { "cveID": "CVE-2025-0002", "vendorProject": "Other", "product": "Thing", "vulnerabilityName": "Another KEV" }
+  ]
+}
+

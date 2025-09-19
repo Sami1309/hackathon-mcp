@@ -1,0 +1,24 @@
+[
+  {
+    "title": "Vendor Security Advisory for CVE-2025-0001",
+    "url": "https://security.vendor.com/advisories/2025-0001",
+    "snippet": "Advisory: CVE-2025-0001 critical issue in Vendor Product 1.0",
+    "publishedAt": "2025-09-01T00:00:00Z",
+    "pageKey": "page-0001.html"
+  },
+  {
+    "title": "Exploit-DB reference for CVE-2025-0001",
+    "url": "https://www.exploit-db.com/exploits/12345",
+    "snippet": "Public PoC exists for CVE-2025-0001 (note: treat as signal only)",
+    "publishedAt": "2025-09-02T00:00:00Z",
+    "pageKey": "page-0002.html"
+  },
+  {
+    "title": "GitHub advisory: CVE-2025-0002 moderate",
+    "url": "https://github.com/advisories/GHSA-xxxx-yyyy",
+    "snippet": "Moderate vulnerability CVE-2025-0002 in library",
+    "publishedAt": "2025-09-03T00:00:00Z",
+    "pageKey": "page-0003.html"
+  }
+]
+

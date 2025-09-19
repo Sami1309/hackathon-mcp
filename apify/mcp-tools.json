@@ -1,0 +1,49 @@
+{
+  "server": "mcp.apify.com",
+  "tools": [
+    {
+      "id": "google_search_scraper",
+      "actor": "apify/google-search-scraper",
+      "title": "Google Search Scraper (vendor advisories)",
+      "input": {
+        "queries": ["site:vendor.com (advisory OR CVE) 2025"],
+        "maxPagesPerQuery": 1,
+        "mustMatch": ["vendor.com"],
+        "saveHtml": true
+      },
+      "safety": {
+        "allowDomains": ["vendor.com", "security.vendor.com"],
+        "rateLimitPerHour": 50
+      }
+    },
+    {
+      "id": "web_scraper_vendor",
+      "actor": "apify/web-scraper",
+      "title": "Web Scraper (allowed vendor docs)",
+      "input": {
+        "startUrls": [{ "url": "https://security.vendor.com/advisories" }],
+        "maxDepth": 2,
+        "linkSelector": "a"
+      },
+      "safety": {
+        "allowDomains": ["security.vendor.com"],
+        "rateLimitPerHour": 200
+      }
+    },
+    {
+      "id": "reddit_scraper",
+      "actor": "apify/reddit-scraper",
+      "title": "Reddit Scraper (r/netsec, r/cybersecurity)",
+      "input": {
+        "subreddits": ["netsec", "cybersecurity"],
+        "search": "CVE",
+        "limit": 50
+      },
+      "safety": {
+        "allowDomains": ["reddit.com"],
+        "rateLimitPerHour": 100
+      }
+    }
+  ]
+}
+

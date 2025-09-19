@@ -1,0 +1,27 @@
+{
+  "servers": {
+    "NodeZeroMCP": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "--pull", "always",
+        "-i",
+        "--rm",
+        "-e", "H3_API_KEY",
+        "horizon3ai/h3-mcp-server:latest"
+      ],
+      "env": {
+        "H3_API_KEY": "MToxNmNkNGI5NS0zMmEzLTQ5MjgtYmQwOC1jZTUxMGQ1YzJiYmU6RzlEdmhGOTlFQ052RTgvdXVLbStZcWRETTdLd3cvbzM4NldubUQ1bFF2Ymk3LzY2"
+      },
+      "inputs": [
+        {
+          "type": "promptString",
+          "id": "h3_api_key",
+          "description": "H3 API Key",
+          "password": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1213 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - NodeZero Security{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="h3 mb-4">
+            <i class="bi bi-speedometer2"></i>
+            Security Dashboard
+        </h1>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total }}</h4>
+                        <p class="card-text">Total Vulnerabilities</p>
+                    </div>
+                    <i class="bi bi-bug fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.critical }}</h4>
+                        <p class="card-text">Critical</p>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.high }}</h4>
+                        <p class="card-text">High</p>
+                    </div>
+                    <i class="bi bi-exclamation-circle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.medium }}</h4>
+                        <p class="card-text">Medium</p>
+                    </div>
+                    <i class="bi bi-info-circle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.open }}</h4>
+                        <p class="card-text">Open Issues</p>
+                    </div>
+                    <i class="bi bi-folder-open fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.recent }}</h4>
+                        <p class="card-text">Recent (30d)</p>
+                    </div>
+                    <i class="bi bi-clock fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MCP Pentest Monitoring Section -->
+<div class="row mb-4" id="mcpMonitoringSection" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-activity"></i>
+                    NodeZero MCP Pentest Monitor
+                    <span class="phase-indicator" id="mcpPhaseIndicator">Initializing</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Streaming Status -->
+                <div class="streaming-status">
+                    <div class="streaming-spinner"></div>
+                    <span id="mcpStatusText">MCP Server Integration: Ready</span>
+                </div>
+
+                <!-- Fast Scrolling MCP Logs -->
+                <div class="row mb-3">
+                    <div class="col-lg-8">
+                        <h6>Real-time MCP Logs</h6>
+                        <div class="fast-scroll-container" id="mcpLogContainer">
+                            <div class="fast-scroll-content" id="mcpLogContent">
+                                <div class="fast-scroll-line">Initializing NodeZero MCP connection...</div>
+                                <div class="fast-scroll-line">Docker container: horizon3ai/h3-mcp-server:latest</div>
+                                <div class="fast-scroll-line">API authentication: Verified</div>
+                                <div class="fast-scroll-line">Ready for pentest execution</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MCP Data Blocks -->
+                    <div class="col-lg-4">
+                        <h6>MCP Activity</h6>
+                        <div class="data-blocks-container" id="mcpDataBlocks">
+                            <div class="data-block info">
+                                <div>MCP Status</div>
+                                <small>Connected</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MCP Process Overview -->
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Process Overview</h6>
+                        <div class="ffv-progress">
+                            <div class="ffv-step" id="mcpStep1">
+                                <div class="ffv-step-circle">1</div>
+                                <div class="ffv-step-label">Network<br>Enumeration</div>
+                            </div>
+                            <div class="ffv-step" id="mcpStep2">
+                                <div class="ffv-step-circle">2</div>
+                                <div class="ffv-step-label">Service<br>Discovery</div>
+                            </div>
+                            <div class="ffv-step" id="mcpStep3">
+                                <div class="ffv-step-circle">3</div>
+                                <div class="ffv-step-label">Vulnerability<br>Assessment</div>
+                            </div>
+                            <div class="ffv-step" id="mcpStep4">
+                                <div class="ffv-step-circle">4</div>
+                                <div class="ffv-step-label">Exploitation</div>
+                            </div>
+                            <div class="ffv-step" id="mcpStep5">
+                                <div class="ffv-step-circle">5</div>
+                                <div class="ffv-step-label">Post-Exploitation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Vulnerabilities -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Vulnerabilities</h5>
+                <a href="{{ url_for('vulnerabilities') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Severity</th>
+                                <th>Title</th>
+                                <th>CVE</th>
+                                <th>CVSS</th>
+                                <th>Status</th>
+                                <th>Discovery Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vuln in vulnerabilities[:10] %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if vuln.severity == 'Critical' else 'warning' if vuln.severity == 'High' else 'info' if vuln.severity == 'Medium' else 'secondary' }}">
+                                        {{ vuln.severity }}
+                                    </span>
+                                </td>
+                                <td>{{ vuln.title[:50] }}{{ '...' if vuln.title|length > 50 else '' }}</td>
+                                <td>{{ vuln.cve_id or 'N/A' }}</td>
+                                <td>{{ vuln.cvss_score }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if vuln.status == 'Resolved' else 'warning' if vuln.status == 'In Progress' else 'danger' }}">
+                                        {{ vuln.status }}
+                                    </span>
+                                </td>
+                                <td>{{ vuln.discovery_date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning-charge"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary" onclick="startFFVCycle()">
+                        <i class="bi bi-arrow-repeat"></i>
+                        Start FFV Cycle
+                    </button>
+
+                    <button class="btn btn-success" onclick="startAnalysis()">
+                        <i class="bi bi-cpu"></i>
+                        Analyze with Claude AI
+                    </button>
+
+                    <button class="btn btn-info" onclick="window.location.href='{{ url_for('vulnerabilities') }}'">
+                        <i class="bi bi-search"></i>
+                        Manage Vulnerabilities
+                    </button>
+
+                    <button class="btn btn-warning" onclick="window.location.href='{{ url_for('pentests') }}'">
+                        <i class="bi bi-shield-exclamation"></i>
+                        View Pentests
+                    </button>
+
+                    <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('reports') }}'">
+                        <i class="bi bi-file-text"></i>
+                        Security Reports
+                    </button>
+                </div>
+
+                <hr>
+
+                <h6>System Status</h6>
+                <div class="small text-muted">
+                    <div class="d-flex justify-content-between">
+                        <span>NodeZero MCP:</span>
+                        <span class="text-success">
+                            <i class="bi bi-circle-fill"></i> Connected
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Claude AI:</span>
+                        <span class="text-success">
+                            <i class="bi bi-circle-fill"></i> Active
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Last Update:</span>
+                        <span id="currentTime">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FFV Cycle Monitoring Modal -->
+<div class="modal fade" id="ffvModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-arrow-repeat"></i>
+                    Find-Fix-Verify Cycle Monitor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="ffvContent">
+                    <!-- FFV cycle content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="downloadFFVReport()" id="downloadFFVBtn" style="display: none;">
+                    <i class="bi bi-download"></i>
+                    Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pentest Monitoring Modal -->
+<div class="modal fade" id="pentestModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-shield-check"></i>
+                    NodeZero Penetration Test Monitor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="pentestContent">
+                    <!-- Pentest content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info" onclick="downloadPentestReport()" id="downloadPentestBtn" style="display: none;">
+                    <i class="bi bi-download"></i>
+                    Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update current time
+function updateCurrentTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+    const timeElement = document.getElementById('currentTime');
+    if (timeElement) {
+        timeElement.textContent = timeString;
+    }
+}
+
+// Update time immediately and then every second
+updateCurrentTime();
+setInterval(updateCurrentTime, 1000);
+async function startAnalysis() {
+    // Get all open vulnerabilities
+    const openVulns = {{ vulnerabilities | selectattr('status', 'equalto', 'Open') | list | tojson }};
+
+    if (openVulns.length === 0) {
+        alert('No open vulnerabilities found to analyze.');
+        return;
+    }
+
+    const confirmed = confirm(`Analyze ${openVulns.length} open vulnerabilities with Claude AI?`);
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch('/analyze_vulnerabilities', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                vulnerability_ids: openVulns.map(v => v.id)
+            })
+        });
+
+        const analysis = await response.json();
+
+        if (response.ok) {
+            showAnalysisModal(analysis);
+        } else {
+            alert('Error: ' + analysis.error);
+        }
+    } catch (error) {
+        alert('Failed to analyze vulnerabilities: ' + error.message);
+    }
+}
+
+function showAnalysisModal(analysis) {
+    const modalHtml = `
+        <div class="modal fade" id="analysisModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Claude AI Vulnerability Analysis</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Summary</h6>
+                        <p>${analysis.summary}</p>
+
+                        <h6>Priority Assessment</h6>
+                        <p><span class="badge bg-warning">${analysis.priority_assessment}</span></p>
+
+                        <h6>Recommended Targets</h6>
+                        <ul>
+                            ${analysis.recommended_targets.map(target => `<li>${target}</li>`).join('')}
+                        </ul>
+
+                        <h6>Test Scenarios</h6>
+                        <ul>
+                            ${analysis.test_scenarios.map(scenario => `<li>${scenario}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="startPentest('${JSON.stringify(analysis.recommended_targets)}', '${JSON.stringify(analysis.test_scenarios)}')">
+                            Start Pentest
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    new bootstrap.Modal(document.getElementById('analysisModal')).show();
+}
+
+async function startPentest(targets, scenarios) {
+    try {
+        const response = await fetch('/start_pentest', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                targets: JSON.parse(targets),
+                scenarios: JSON.parse(scenarios)
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(`Pentest started successfully! Job ID: ${result.job_id}`);
+            window.location.href = '/pentests';
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Failed to start pentest: ' + error.message);
+    }
+}
+
+// FFV Cycle Functions
+async function startFFVCycle() {
+    // Get all open vulnerabilities
+    const openVulns = {{ vulnerabilities | selectattr('status', 'equalto', 'Open') | list | tojson }};
+
+    if (openVulns.length === 0) {
+        alert('No open vulnerabilities found for FFV cycle.');
+        return;
+    }
+
+    const confirmed = confirm(`Start Find-Fix-Verify cycle for ${openVulns.length} open vulnerabilities?`);
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch('/start_ffv_cycle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vulnerability_ids: openVulns.map(v => v.id) })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showFFVModal(result.cycle_id);
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Failed to start FFV cycle: ' + error.message);
+    }
+}
+
+function showFFVModal(cycleId) {
+    const modal = new bootstrap.Modal(document.getElementById('ffvModal'));
+    modal.show();
+
+    // Start monitoring the FFV cycle
+    monitorFFVCycle(cycleId);
+}
+
+async function monitorFFVCycle(cycleId) {
+    const content = document.getElementById('ffvContent');
+
+    // Initialize content
+    content.innerHTML = `
+        <div class="text-center mb-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Initializing Find-Fix-Verify Cycle...</p>
+        </div>
+    `;
+
+    const intervalId = setInterval(async () => {
+        try {
+            const response = await fetch(\`/ffv_details/\${cycleId}\`);
+            const cycle = await response.json();
+
+            if (response.ok) {
+                updateFFVDisplay(cycle);
+
+                if (cycle.status === 'Completed') {
+                    clearInterval(intervalId);
+                    document.getElementById('downloadFFVBtn').style.display = 'inline-block';
+                }
+            }
+        } catch (error) {
+            console.error('Error monitoring FFV cycle:', error);
+        }
+    }, 2000);
+
+    // Store interval for cleanup
+    document.getElementById('ffvModal').ffvInterval = intervalId;
+}
+
+function updateFFVDisplay(cycle) {
+    const content = document.getElementById('ffvContent');
+
+    const phaseColors = {
+        'find': 'primary',
+        'fix': 'warning',
+        'verify': 'success'
+    };
+
+    const phaseIcons = {
+        'find': 'search',
+        'fix': 'tools',
+        'verify': 'check-circle'
+    };
+
+    content.innerHTML = \`
+        <div class="row mb-4">
+            <div class="col-12">
+                <h6>FFV Cycle Progress: \${cycle.status}</h6>
+                <div class="progress mb-3" style="height: 25px;">
+                    \${Object.keys(cycle.phases).map((phase, index) => {
+                        const phaseData = cycle.phases[phase];
+                        const width = phaseData.status === 'Completed' ? 33.33 :
+                                     phaseData.status === 'In Progress' ? 16.67 : 0;
+                        return \`
+                            <div class="progress-bar bg-\${phaseColors[phase]}" role="progressbar"
+                                 style="width: \${width}%"
+                                 aria-valuenow="\${width}" aria-valuemin="0" aria-valuemax="100">
+                                \${phase.toUpperCase()}
+                            </div>
+                        \`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            \${Object.entries(cycle.phases).map(([phase, data]) => \`
+                <div class="col-md-4">
+                    <div class="card \${data.status === 'In Progress' ? 'border-' + phaseColors[phase] : ''}">
+                        <div class="card-header bg-\${phaseColors[phase]} text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-\${phaseIcons[phase]}"></i>
+                                \${phase.toUpperCase()} Phase
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Status:</strong> \${data.status}</p>
+                            \${data.start_time ? \`<p><small>Started: \${new Date(data.start_time).toLocaleTimeString()}</small></p>\` : ''}
+                            \${data.end_time ? \`<p><small>Completed: \${new Date(data.end_time).toLocaleTimeString()}</small></p>\` : ''}
+
+                            \${phase === 'find' && cycle.findings.length > 0 ? \`
+                                <h6>Findings (\${cycle.findings.length})</h6>
+                                <ul class="list-unstyled">
+                                    \${cycle.findings.slice(-3).map(f => \`
+                                        <li><small><span class="badge bg-\${f.severity === 'Critical' ? 'danger' : 'warning'}">\${f.severity}</span> \${f.type}</small></li>
+                                    \`).join('')}
+                                </ul>
+                            \` : ''}
+
+                            \${phase === 'fix' && cycle.fixes_applied.length > 0 ? \`
+                                <h6>Fixes Applied (\${cycle.fixes_applied.length})</h6>
+                                <ul class="list-unstyled">
+                                    \${cycle.fixes_applied.slice(-3).map(f => \`
+                                        <li><small><i class="bi bi-check text-success"></i> \${f.fix_type}</small></li>
+                                    \`).join('')}
+                                </ul>
+                            \` : ''}
+
+                            \${phase === 'verify' && cycle.verification_results.length > 0 ? \`
+                                <h6>Verification Results (\${cycle.verification_results.length})</h6>
+                                <ul class="list-unstyled">
+                                    \${cycle.verification_results.slice(-3).map(v => \`
+                                        <li><small><i class="bi bi-\${v.result === 'Passed' ? 'check-circle text-success' : 'x-circle text-danger'}"></i> \${v.result}</small></li>
+                                    \`).join('')}
+                                </ul>
+                            \` : ''}
+                        </div>
+                    </div>
+                </div>
+            \`).join('')}
+        </div>
+    \`;
+}
+
+// Enhanced Pentest Functions
+async function startPentest(targets, scenarios) {
+    try {
+        const response = await fetch('/start_pentest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ targets: JSON.parse(targets), scenarios: JSON.parse(scenarios) })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Show in-app modal instead of redirecting
+            showPentestModal(result.job_id);
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Failed to start pentest: ' + error.message);
+    }
+}
+
+function showPentestModal(jobId) {
+    const modal = new bootstrap.Modal(document.getElementById('pentestModal'));
+    modal.show();
+
+    // Start monitoring the pentest
+    monitorPentest(jobId);
+}
+
+async function monitorPentest(jobId) {
+    const content = document.getElementById('pentestContent');
+
+    content.innerHTML = \`
+        <div class="text-center mb-4">
+            <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Initializing NodeZero Penetration Test...</p>
+        </div>
+    \`;
+
+    const intervalId = setInterval(async () => {
+        try {
+            const [statusResponse, logsResponse] = await Promise.all([
+                fetch(\`/pentest_status/\${jobId}\`),
+                fetch(\`/pentest_logs/\${jobId}\`)
+            ]);
+
+            const status = await statusResponse.json();
+            const logs = await logsResponse.json();
+
+            if (statusResponse.ok && logsResponse.ok) {
+                updatePentestDisplay(status, logs);
+
+                if (status.status === 'Completed') {
+                    clearInterval(intervalId);
+                    document.getElementById('downloadPentestBtn').style.display = 'inline-block';
+                }
+            }
+        } catch (error) {
+            console.error('Error monitoring pentest:', error);
+        }
+    }, 3000);
+
+    // Store interval for cleanup
+    document.getElementById('pentestModal').pentestInterval = intervalId;
+}
+
+function updatePentestDisplay(status, logs) {
+    const content = document.getElementById('pentestContent');
+
+    content.innerHTML = \`
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h6>Sample Internal Pentest Status: \${status.status}</h6>
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar bg-gradient bg-info" role="progressbar"
+                         style="width: \${status.progress}%"
+                         aria-valuenow="\${status.progress}">
+                        \${status.progress}%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-flex gap-2 justify-content-end">
+                    <span class="badge bg-success fs-6">MCP: Connected</span>
+                    <span class="badge bg-info fs-6">Findings: \${status.findings_count}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <h6>
+                    <i class="bi bi-terminal"></i>
+                    Fast Scroll Data Stream
+                </h6>
+                <div id="fastScrollContainer" class="fast-scroll-container">
+                    <!-- Fast scrolling data will appear here -->
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6>
+                    <i class="bi bi-pie-chart"></i>
+                    Emerging Data Blocks
+                </h6>
+                <div id="dataBlocksContainer" class="data-blocks-container">
+                    <!-- Rounded rectangle data blocks will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <h6>
+                    <i class="bi bi-code-square"></i>
+                    NodeZero MCP Server Logs
+                </h6>
+                <div class="log-viewer" style="height: 200px; overflow-y: auto; background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; padding: 15px; border-radius: 10px; border: 2px solid #333;">
+                    \${logs.logs.map(log => \`
+                        <div class="log-entry" style="animation: fadeInUp 0.3s ease-out;">
+                            [<span style="color: #666;">\${new Date(log.timestamp).toLocaleTimeString()}</span>]
+                            <span style="color: \${getLogColor(log.level)};">\${log.level}:</span>
+                            <span style="color: #00ff41;">\${log.message}</span>
+                        </div>
+                    \`).join('')}
+                </div>
+            </div>
+        </div>
+    \`;
+
+    // Auto-scroll to bottom
+    const logViewer = content.querySelector('.log-viewer');
+    logViewer.scrollTop = logViewer.scrollHeight;
+
+    // Start streaming data visualization
+    startDataStreaming(status.id);
+}
+
+function getLogColor(level) {
+    switch (level) {
+        case 'ERROR': return '#ff4444';
+        case 'WARNING': return '#ffaa00';
+        case 'SUCCESS': return '#00ff00';
+        case 'INFO': return '#00aaff';
+        default: return '#ffffff';
+    }
+}
+
+// Download functions
+function downloadFFVReport() {
+    alert('FFV Report download would be implemented here');
+}
+
+function downloadPentestReport() {
+    alert('Pentest Report download would be implemented here');
+}
+
+// Data Streaming and Visualization Functions
+let streamingInterval = null;
+let dataBlockCounter = 0;
+
+function startDataStreaming(jobId) {
+    if (streamingInterval) {
+        clearInterval(streamingInterval);
+    }
+
+    streamingInterval = setInterval(async () => {
+        try {
+            const response = await fetch(\`/pentest_streams/\${jobId}\`);
+            const data = await response.json();
+
+            if (response.ok && data.streams) {
+                updateFastScrollData(data.streams);
+                updateDataBlocks(data.streams);
+            }
+        } catch (error) {
+            console.error('Error fetching streaming data:', error);
+        }
+    }, 500); // Update every 500ms for fast scrolling effect
+}
+
+function updateFastScrollData(streams) {
+    const container = document.getElementById('fastScrollContainer');
+    if (!container) return;
+
+    // Initialize container if empty
+    if (!container.innerHTML) {
+        container.innerHTML = \`
+            <div class="fast-scroll-display" style="
+                height: 300px;
+                background: linear-gradient(135deg, #001122 0%, #003344 100%);
+                border: 2px solid #0066cc;
+                border-radius: 10px;
+                padding: 15px;
+                overflow: hidden;
+                position: relative;
+                font-family: 'Courier New', monospace;
+            ">
+                <div class="scroll-content" id="scrollContent" style="
+                    position: absolute;
+                    width: 100%;
+                    animation: fastScroll 2s linear infinite;
+                    color: #00aaff;
+                    font-size: 12px;
+                    line-height: 1.4;
+                "></div>
+            </div>
+        \`;
+    }
+
+    const scrollContent = document.getElementById('scrollContent');
+    if (!scrollContent) return;
+
+    // Add new streaming data
+    const recentStreams = streams.slice(-20); // Show last 20 items
+    const streamLines = recentStreams.map(stream => {
+        const typeColor = getStreamTypeColor(stream.type);
+        const timestamp = new Date(stream.timestamp).toLocaleTimeString();
+        return \`
+            <div style="color: \${typeColor}; margin-bottom: 5px;">
+                [\${timestamp}] [\${stream.id}] \${stream.message}
+            </div>
+        \`;
+    }).join('');
+
+    scrollContent.innerHTML = streamLines;
+}
+
+function updateDataBlocks(streams) {
+    const container = document.getElementById('dataBlocksContainer');
+    if (!container) return;
+
+    // Initialize container if empty
+    if (!container.innerHTML) {
+        container.innerHTML = \`
+            <div class="data-blocks-display" style="
+                height: 300px;
+                background: linear-gradient(135deg, #110022 0%, #220044 100%);
+                border: 2px solid #6600cc;
+                border-radius: 10px;
+                padding: 15px;
+                overflow-y: auto;
+                position: relative;
+            ">
+                <div id="blocksContent"></div>
+            </div>
+        \`;
+    }
+
+    const blocksContent = document.getElementById('blocksContent');
+    if (!blocksContent) return;
+
+    // Process new data for blocks
+    const recentStreams = streams.slice(-15); // Show last 15 as blocks
+    const blocksHtml = recentStreams.map(stream => {
+        const blockColor = getBlockColor(stream.type);
+        dataBlockCounter++;
+
+        return \`
+            <div class="data-block" style="
+                background: linear-gradient(135deg, \${blockColor}22, \${blockColor}44);
+                border: 2px solid \${blockColor};
+                border-radius: 15px;
+                padding: 10px;
+                margin: 5px 0;
+                animation: blockAppear 0.5s ease-out;
+                font-size: 11px;
+                position: relative;
+            ">
+                <div style="display: flex; justify-content: between; align-items: center;">
+                    <span class="block-type" style="
+                        background: \${blockColor};
+                        color: white;
+                        padding: 2px 6px;
+                        border-radius: 8px;
+                        font-size: 9px;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                    ">
+                        \${stream.type}
+                    </span>
+                    <span style="color: #888; font-size: 9px;">
+                        \${stream.id}
+                    </span>
+                </div>
+                <div style="color: #fff; margin-top: 5px; font-size: 10px;">
+                    \${stream.message.length > 60 ? stream.message.substring(0, 60) + '...' : stream.message}
+                </div>
+            </div>
+        \`;
+    }).join('');
+
+    blocksContent.innerHTML = blocksHtml;
+
+    // Auto-scroll to bottom
+    container.querySelector('.data-blocks-display').scrollTop = container.querySelector('.data-blocks-display').scrollHeight;
+}
+
+function getStreamTypeColor(type) {
+    const colors = {
+        'connection': '#00ff00',
+        'response': '#00aaff',
+        'stage': '#ffaa00',
+        'scan': '#ff6600',
+        'discovery': '#00ff88',
+        'service': '#8800ff',
+        'vulnerability': '#ff0044',
+        'exploit': '#ff4400',
+        'success': '#44ff00',
+        'post_exploit': '#ff8800',
+        'report': '#0088ff',
+        'completion': '#00ff44'
+    };
+    return colors[type] || '#ffffff';
+}
+
+function getBlockColor(type) {
+    const colors = {
+        'connection': '#00cc00',
+        'response': '#0088cc',
+        'stage': '#cc8800',
+        'scan': '#cc4400',
+        'discovery': '#00cc66',
+        'service': '#6600cc',
+        'vulnerability': '#cc0033',
+        'exploit': '#cc3300',
+        'success': '#33cc00',
+        'post_exploit': '#cc6600',
+        'report': '#0066cc',
+        'completion': '#00cc33'
+    };
+    return colors[type] || '#666666';
+}
+
+// Enhanced FFV Display with Streaming
+function updateFFVDisplayWithStreaming(cycle) {
+    updateFFVDisplay(cycle);
+
+    // Add streaming effects to FFV if needed
+    if (cycle.status.includes('Finding') || cycle.status.includes('Fixing') || cycle.status.includes('Verifying')) {
+        // Add some visual streaming effects for FFV as well
+        const ffvContent = document.getElementById('ffvContent');
+        if (ffvContent) {
+            // Add streaming indicator
+            const streamingIndicator = ffvContent.querySelector('.streaming-indicator') || document.createElement('div');
+            streamingIndicator.className = 'streaming-indicator';
+            streamingIndicator.innerHTML = \`
+                <div style="text-align: center; color: #0066cc; animation: pulse 1s infinite;">
+                    <i class="bi bi-activity"></i> Processing FFV Cycle Data...
+                </div>
+            \`;
+            if (!ffvContent.querySelector('.streaming-indicator')) {
+                ffvContent.appendChild(streamingIndicator);
+            }
+        }
+    }
+}
+
+// Cleanup intervals when modals are closed
+document.getElementById('ffvModal').addEventListener('hidden.bs.modal', function() {
+    if (this.ffvInterval) {
+        clearInterval(this.ffvInterval);
+    }
+});
+
+document.getElementById('pentestModal').addEventListener('hidden.bs.modal', function() {
+    if (this.pentestInterval) {
+        clearInterval(this.pentestInterval);
+    }
+    if (streamingInterval) {
+        clearInterval(streamingInterval);
+        streamingInterval = null;
+    }
+});
+
+// MCP Pentest Monitoring Functions
+let mcpMonitoringActive = false;
+let mcpStreamingInterval = null;
+let currentMcpJobId = null;
+
+// Show MCP monitoring section
+function showMCPMonitoring(jobId) {
+    currentMcpJobId = jobId;
+    const section = document.getElementById('mcpMonitoringSection');
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth' });
+
+    // Start MCP monitoring
+    mcpMonitoringActive = true;
+    startMCPMonitoring(jobId);
+}
+
+// Hide MCP monitoring section
+function hideMCPMonitoring() {
+    mcpMonitoringActive = false;
+    currentMcpJobId = null;
+
+    if (mcpStreamingInterval) {
+        clearInterval(mcpStreamingInterval);
+        mcpStreamingInterval = null;
+    }
+
+    const section = document.getElementById('mcpMonitoringSection');
+    section.style.display = 'none';
+}
+
+// Start MCP monitoring with streaming updates
+function startMCPMonitoring(jobId) {
+    // Initialize MCP monitoring display
+    updateMCPStatus('Connecting to MCP server...');
+    updateMCPPhaseIndicator('Initializing', 'info');
+
+    // Start streaming updates
+    mcpStreamingInterval = setInterval(async () => {
+        if (!mcpMonitoringActive) return;
+
+        try {
+            // Get pentest streaming data (includes MCP data)
+            const response = await fetch(`/pentest_streams/${jobId}`);
+            if (response.ok) {
+                const data = await response.json();
+                updateMCPLogs(data.streams);
+                updateMCPDataBlocks(data.data_blocks);
+                updateMCPProgress(data);
+            }
+
+            // Get job status to check if completed
+            const statusResponse = await fetch(`/pentest_status/${jobId}`);
+            if (statusResponse.ok) {
+                const status = await statusResponse.json();
+
+                if (status.status === 'Completed') {
+                    updateMCPStatus('MCP Pentest Completed Successfully');
+                    updateMCPPhaseIndicator('Completed', 'success');
+
+                    // Stop monitoring after 10 seconds
+                    setTimeout(() => {
+                        if (mcpMonitoringActive) {
+                            hideMCPMonitoring();
+                        }
+                    }, 10000);
+                } else if (status.status.includes('Running')) {
+                    updateMCPStatus(`MCP Status: ${status.status}`);
+                    updateMCPPhaseIndicator('Running', 'active');
+                }
+            }
+        } catch (error) {
+            console.error('Error updating MCP monitoring:', error);
+        }
+    }, 1000); // Update every second for real-time effect
+}
+
+// Update MCP status text
+function updateMCPStatus(status) {
+    const statusElement = document.getElementById('mcpStatusText');
+    if (statusElement) {
+        statusElement.textContent = status;
+    }
+}
+
+// Update MCP phase indicator
+function updateMCPPhaseIndicator(phase, type) {
+    const indicator = document.getElementById('mcpPhaseIndicator');
+    if (indicator) {
+        indicator.textContent = phase;
+        indicator.className = `phase-indicator ${type === 'active' ? 'active' : ''}`;
+    }
+}
+
+// Update MCP logs with fast scrolling effect
+function updateMCPLogs(streams) {
+    const logContent = document.getElementById('mcpLogContent');
+    if (!logContent || !streams) return;
+
+    // Clear old content and add new streams
+    logContent.innerHTML = '';
+
+    streams.forEach((stream, index) => {
+        const logLine = document.createElement('div');
+        logLine.className = 'fast-scroll-line';
+
+        // Add color coding based on content
+        if (stream.includes('CRITICAL') || stream.includes('ERROR')) {
+            logLine.style.color = '#ff4444';
+        } else if (stream.includes('WARNING') || stream.includes('HIGH')) {
+            logLine.style.color = '#ffaa00';
+        } else if (stream.includes('SUCCESS') || stream.includes('COMPLETED')) {
+            logLine.style.color = '#00ff00';
+        } else if (stream.includes('MCP')) {
+            logLine.style.color = '#00aaff';
+        }
+
+        logLine.textContent = `[${new Date().toLocaleTimeString()}] ${stream}`;
+
+        // Add with staggered animation
+        setTimeout(() => {
+            logContent.appendChild(logLine);
+        }, index * 100);
+    });
+
+    // Auto-scroll to bottom
+    setTimeout(() => {
+        const container = document.getElementById('mcpLogContainer');
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }, streams.length * 100 + 500);
+}
+
+// Update MCP data blocks
+function updateMCPDataBlocks(dataBlocks) {
+    const container = document.getElementById('mcpDataBlocks');
+    if (!container || !dataBlocks) return;
+
+    // Keep the status block and add new blocks
+    const existingBlocks = container.querySelectorAll('.data-block');
+    const statusBlock = existingBlocks[0]; // Keep the first status block
+
+    // Clear all blocks except status
+    container.innerHTML = '';
+    if (statusBlock) {
+        container.appendChild(statusBlock);
+    }
+
+    // Add new data blocks
+    dataBlocks.forEach((block, index) => {
+        const blockElement = document.createElement('div');
+        blockElement.className = `data-block ${block.type}`;
+        blockElement.innerHTML = `
+            <div>${block.text}</div>
+            <small>${new Date(block.timestamp).toLocaleTimeString()}</small>
+        `;
+
+        // Add with staggered animation
+        setTimeout(() => {
+            container.appendChild(blockElement);
+        }, index * 200);
+    });
+}
+
+// Update MCP progress steps
+function updateMCPProgress(data) {
+    // This would map pentest progress to MCP steps
+    const steps = ['mcpStep1', 'mcpStep2', 'mcpStep3', 'mcpStep4', 'mcpStep5'];
+    const progress = data.progress || 0;
+
+    steps.forEach((stepId, index) => {
+        const step = document.getElementById(stepId);
+        if (!step) return;
+
+        const stepProgress = (index + 1) * 20; // Each step is 20% progress
+
+        if (progress >= stepProgress) {
+            step.classList.add('completed');
+            step.classList.remove('active');
+        } else if (progress >= stepProgress - 20 && progress < stepProgress) {
+            step.classList.add('active');
+            step.classList.remove('completed');
+        } else {
+            step.classList.remove('active', 'completed');
+        }
+    });
+}
+
+// Override the existing startPentest function to show MCP monitoring
+async function startPentestWithMCP() {
+    const response = await startPentest();
+
+    // If pentest started successfully, show MCP monitoring
+    if (response && response.ok) {
+        const result = await response.json();
+        if (result.job_id) {
+            // Show MCP monitoring section
+            setTimeout(() => {
+                showMCPMonitoring(result.job_id);
+            }, 1000);
+        }
+    }
+}
+
+// Update the existing button to use MCP monitoring
+document.addEventListener('DOMContentLoaded', function() {
+    // Override pentest button if it exists
+    const pentestButton = document.querySelector('button[onclick*="startPentest"]');
+    if (pentestButton) {
+        pentestButton.setAttribute('onclick', 'startPentestWithMCP()');
+    }
+});
+
+</script>
+{% endblock %}

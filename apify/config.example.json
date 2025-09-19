@@ -1,0 +1,24 @@
+{
+  "curatedActors": {
+    "googleSearch": "apify/google-search-scraper",
+    "webScraper": "apify/web-scraper",
+    "redditScraper": "apify/reddit-scraper"
+  },
+  "allowedDomains": [
+    "cisa.gov", "www.cisa.gov",
+    "nvd.nist.gov",
+    "github.com", "github.com/advisories",
+    "vendor.com", "security.vendor.com",
+    "reddit.com/r/netsec", "reddit.com/r/cybersecurity",
+    "exploit-db.com"
+  ],
+  "datasetName": "findings-demo",
+  "webhookUrl": "http://localhost:8787/apify/webhook",
+  "maxPages": 1,
+  "defaultQueries": [
+    "site:vendor.com (advisory OR CVE) 2025",
+    "site:github.com/advisories CVE",
+    "site:nvd.nist.gov/vuln CVE 2025"
+  ]
+}
+

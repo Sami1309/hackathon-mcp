@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/finding.schema.json",
+  "title": "SecurityFinding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "url", "title"],
+  "properties": {
+    "cve": { "type": ["string", "null"], "pattern": "^CVE-\\d{4}-\\d+$" },
+    "title": { "type": "string" },
+    "source": { "type": "string", "enum": ["nvd", "kev", "github", "vendor", "reddit", "exploit-db", "search"] },
+    "url": { "type": "string", "format": "uri" },
+    "published": { "type": ["string", "null"], "format": "date-time" },
+    "cvss": { "type": ["number", "null"], "minimum": 0, "maximum": 10 },
+    "kev": { "type": ["boolean", "null"] },
+    "epss": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "percentile": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "asOf": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "poc_public": { "type": ["boolean", "null"] },
+    "products": { "type": ["array", "null"], "items": { "type": "string" } },
+    "notes": { "type": ["string", "null"] },
+    "raw_store_key": { "type": ["string", "null"] }
+  }
+}
+

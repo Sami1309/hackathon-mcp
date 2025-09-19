@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+{% block title %}Vulnerability Intelligence - NodeZero Security{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3">
+                    <i class="bi bi-shield-exclamation"></i>
+                    Vulnerability Intelligence Center
+                </h1>
+                <p class="text-muted mb-0">Using Apify web scraping to discover security vulnerabilities and correlate with support tickets</p>
+            </div>
+            <div>
+                <button class="btn btn-primary btn-lg" onclick="startApifyScraping()" id="scrapingBtn">
+                    <i class="bi bi-search"></i>
+                    Scan for Vulnerabilities
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Side: Scraped Vulnerabilities -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-globe"></i>
+                        Apify Scraped Vulnerabilities
+                    </h5>
+                    <span class="badge bg-light text-primary" id="vulnerabilityCount">0 found</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <!-- Scraping Status -->
+                <div id="scrapingStatus" class="p-3 border-bottom">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Ready to scrape vulnerability sources using Apify MCP integration
+                    </div>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div id="scrapingProgress" class="p-3 border-bottom" style="display: none;">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                        <span id="progressText">Initializing Apify scraping...</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 0%" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <!-- Vulnerabilities List -->
+                <div id="vulnerabilitiesList" class="p-3">
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-search display-4"></i>
+                        <p>Click "Scan for Vulnerabilities" to start scraping with Apify</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Support Tickets -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-secondary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-ticket-perforated"></i>
+                        Internal Support Tickets
+                    </h5>
+                    <div>
+                        <button class="btn btn-sm btn-light" onclick="createVectorDB()">
+                            <i class="bi bi-database"></i>
+                            Create Vector DB
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="supportTickets">
+                    <!-- Sample Support Tickets -->
+                    <div class="ticket-item mb-3 p-3 border rounded" data-ticket-id="TICK-001">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-danger">High Priority</span>
+                            <small class="text-muted">TICK-001</small>
+                        </div>
+                        <h6>Authentication bypass in admin panel</h6>
+                        <p class="mb-2 text-muted">Users reporting ability to access admin functions without proper authentication. Multiple reports from production environment.</p>
+                        <small class="text-muted">Reported: 2025-01-15 | Status: Open</small>
+                    </div>
+
+                    <div class="ticket-item mb-3 p-3 border rounded" data-ticket-id="TICK-002">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-warning">Medium Priority</span>
+                            <small class="text-muted">TICK-002</small>
+                        </div>
+                        <h6>SQL injection in search functionality</h6>
+                        <p class="mb-2 text-muted">Security researcher found SQL injection vulnerability in the search parameter of /search endpoint.</p>
+                        <small class="text-muted">Reported: 2025-01-14 | Status: In Progress</small>
+                    </div>
+
+                    <div class="ticket-item mb-3 p-3 border rounded" data-ticket-id="TICK-003">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-info">Low Priority</span>
+                            <small class="text-muted">TICK-003</small>
+                        </div>
+                        <h6>Outdated SSL certificate warnings</h6>
+                        <p class="mb-2 text-muted">Users receiving SSL certificate warnings when accessing subdomain services.</p>
+                        <small class="text-muted">Reported: 2025-01-13 | Status: Open</small>
+                    </div>
+
+                    <div class="ticket-item mb-3 p-3 border rounded" data-ticket-id="TICK-004">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-danger">High Priority</span>
+                            <small class="text-muted">TICK-004</small>
+                        </div>
+                        <h6>Cross-site scripting in comment system</h6>
+                        <p class="mb-2 text-muted">XSS vulnerability allowing script injection through user comments. Affects all user-facing comment sections.</p>
+                        <small class="text-muted">Reported: 2025-01-12 | Status: Open</small>
+                    </div>
+
+                    <div class="ticket-item mb-3 p-3 border rounded" data-ticket-id="TICK-005">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-warning">Medium Priority</span>
+                            <small class="text-muted">TICK-005</small>
+                        </div>
+                        <h6>Insecure file upload vulnerability</h6>
+                        <p class="mb-2 text-muted">File upload endpoint not properly validating file types, potential for malicious file uploads.</p>
+                        <small class="text-muted">Reported: 2025-01-11 | Status: Open</small>
+                    </div>
+                </div>
+
+                <!-- Vector DB Status -->
+                <div id="vectorDBStatus" class="mt-3 p-3 bg-light rounded" style="display: none;">
+                    <h6><i class="bi bi-database"></i> Vector Database Status</h6>
+                    <div id="vectorDBInfo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Analysis Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-cpu"></i>
+                    AI-Powered Vulnerability Correlation
+                </h5>
+                <small>Claude AI analyzes scraped vulnerabilities and support tickets to prioritize pentesting targets</small>
+            </div>
+            <div class="card-body">
+                <div id="aiAnalysisSection">
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-robot display-4"></i>
+                        <p>Scrape vulnerabilities and create vector database to enable AI correlation analysis</p>
+                        <button class="btn btn-success" onclick="runAICorrelation()" id="correlationBtn" disabled>
+                            <i class="bi bi-magic"></i>
+                            Analyze & Correlate with Claude AI
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let vulnerabilitiesData = [];
+let ticketsData = [];
+let vectorDBCreated = false;
+
+// Initialize with sample tickets data
+ticketsData = [
+    {
+        id: "TICK-001",
+        title: "Authentication bypass in admin panel",
+        description: "Users reporting ability to access admin functions without proper authentication. Multiple reports from production environment.",
+        priority: "High",
+        status: "Open",
+        keywords: ["authentication", "bypass", "admin", "panel", "access control"]
+    },
+    {
+        id: "TICK-002",
+        title: "SQL injection in search functionality",
+        description: "Security researcher found SQL injection vulnerability in the search parameter of /search endpoint.",
+        priority: "Medium",
+        status: "In Progress",
+        keywords: ["sql", "injection", "search", "database", "endpoint"]
+    },
+    {
+        id: "TICK-003",
+        title: "Outdated SSL certificate warnings",
+        description: "Users receiving SSL certificate warnings when accessing subdomain services.",
+        priority: "Low",
+        status: "Open",
+        keywords: ["ssl", "certificate", "warnings", "subdomain", "encryption"]
+    },
+    {
+        id: "TICK-004",
+        title: "Cross-site scripting in comment system",
+        description: "XSS vulnerability allowing script injection through user comments. Affects all user-facing comment sections.",
+        priority: "High",
+        status: "Open",
+        keywords: ["xss", "cross-site", "scripting", "comment", "injection"]
+    },
+    {
+        id: "TICK-005",
+        title: "Insecure file upload vulnerability",
+        description: "File upload endpoint not properly validating file types, potential for malicious file uploads.",
+        priority: "Medium",
+        status: "Open",
+        keywords: ["file", "upload", "validation", "malicious", "endpoint"]
+    }
+];
+
+async function startApifyScraping() {
+    const btn = document.getElementById('scrapingBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-spinner"></i> Scraping...';
+
+    showProgress();
+    updateProgress(10, 'Connecting to Claude AI...');
+
+    try {
+        setTimeout(async () => {
+            updateProgress(30, 'Establishing Apify MCP connection...');
+
+            setTimeout(async () => {
+                updateProgress(60, 'Scraping vulnerability sources...');
+
+                const response = await fetch('/scrape_vulnerabilities', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target_urls: null })
+                });
+
+                const result = await response.json();
+                updateProgress(90, 'Processing scraped data...');
+
+                setTimeout(() => {
+                    updateProgress(100, 'Scraping completed!');
+                    setTimeout(() => {
+                        hideProgress();
+                        displayVulnerabilities(result);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-search"></i> Scan for Vulnerabilities';
+                        checkAnalysisReady();
+                    }, 1000);
+                }, 1000);
+            }, 1500);
+        }, 1000);
+
+    } catch (error) {
+        hideProgress();
+        showStatus(`Scraping failed: ${error.message}`, 'danger');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search"></i> Scan for Vulnerabilities';
+    }
+}
+
+function showProgress() {
+    document.getElementById('scrapingStatus').style.display = 'none';
+    document.getElementById('scrapingProgress').style.display = 'block';
+}
+
+function hideProgress() {
+    document.getElementById('scrapingStatus').style.display = 'block';
+    document.getElementById('scrapingProgress').style.display = 'none';
+}
+
+function updateProgress(percent, text) {
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressText').textContent = text;
+}
+
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('scrapingStatus');
+    statusDiv.innerHTML = `
+        <div class="alert alert-${type} mb-0">
+            <i class="bi bi-${type === 'danger' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            ${message}
+        </div>
+    `;
+}
+
+function displayVulnerabilities(result) {
+    if (result.success) {
+        vulnerabilitiesData = result.vulnerabilities;
+        document.getElementById('vulnerabilityCount').textContent = `${vulnerabilitiesData.length} found`;
+
+        const listDiv = document.getElementById('vulnerabilitiesList');
+        listDiv.innerHTML = '';
+
+        vulnerabilitiesData.forEach(vuln => {
+            const vulnDiv = document.createElement('div');
+            vulnDiv.className = 'vuln-item mb-3 p-3 border rounded';
+            vulnDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-${vuln.severity === 'Critical' ? 'danger' : vuln.severity === 'High' ? 'warning' : 'info'}">${vuln.severity}</span>
+                    <small class="text-muted">${vuln.cve_id}</small>
+                </div>
+                <h6>${vuln.title}</h6>
+                <p class="mb-2 text-muted">${vuln.description.substring(0, 150)}...</p>
+                <small class="text-muted">Source: ${vuln.source} | CVSS: ${vuln.cvss_score}</small>
+            `;
+            listDiv.appendChild(vulnDiv);
+        });
+
+        showStatus(`Successfully scraped ${vulnerabilitiesData.length} vulnerabilities using Apify MCP`, 'success');
+    } else {
+        showStatus(`Scraping failed: ${result.error}`, 'danger');
+    }
+}
+
+async function createVectorDB() {
+    try {
+        const response = await fetch('/create_vector_db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tickets: ticketsData })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            vectorDBCreated = true;
+            document.getElementById('vectorDBStatus').style.display = 'block';
+            document.getElementById('vectorDBInfo').innerHTML = `
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle"></i>
+                    Vector database created with ${result.indexed_count} support tickets
+                </div>
+            `;
+            checkAnalysisReady();
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        document.getElementById('vectorDBStatus').style.display = 'block';
+        document.getElementById('vectorDBInfo').innerHTML = `
+            <div class="alert alert-danger mb-0">
+                <i class="bi bi-exclamation-triangle"></i>
+                Failed to create vector database: ${error.message}
+            </div>
+        `;
+    }
+}
+
+function checkAnalysisReady() {
+    const correlationBtn = document.getElementById('correlationBtn');
+    if (vulnerabilitiesData.length > 0 && vectorDBCreated) {
+        correlationBtn.disabled = false;
+    }
+}
+
+async function runAICorrelation() {
+    const analysisSection = document.getElementById('aiAnalysisSection');
+    analysisSection.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-success mb-3"></div>
+            <p>Claude AI is analyzing vulnerabilities and support tickets...</p>
+        </div>
+    `;
+
+    try {
+        const response = await fetch('/ai_correlate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                vulnerabilities: vulnerabilitiesData,
+                tickets: ticketsData
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            analysisSection.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-target"></i> Priority Vulnerabilities for Pentesting</h6>
+                        <div class="list-group">
+                            ${result.priority_vulnerabilities.map(vuln => `
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">${vuln.title}</h6>
+                                        <span class="badge bg-danger">${vuln.severity}</span>
+                                    </div>
+                                    <p class="mb-1">${vuln.reasoning}</p>
+                                    <small>Related tickets: ${vuln.related_tickets.join(', ')}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-chat-dots"></i> AI Analysis Summary</h6>
+                        <div class="bg-light p-3 rounded">
+                            ${result.analysis}
+                        </div>
+                        <button class="btn btn-success mt-3" onclick="startPentestFromAnalysis()">
+                            <i class="bi bi-play-circle"></i>
+                            Start Pentest on Priority Targets
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        analysisSection.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i>
+                AI correlation failed: ${error.message}
+            </div>
+        `;
+    }
+}
+
+function startPentestFromAnalysis() {
+    alert('Launching pentest on priority vulnerability targets...');
+    window.location.href = '/pentests';
+}
+</script>
+{% endblock %}
