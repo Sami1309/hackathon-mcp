@@ -1,0 +1,1 @@
+Do not use purple or gradients in web design

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pentest → Fix → Verify — Mock Entrypoint</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#fff; --ink:#0a0a0a; --muted:#6b7280; --line:#e5e7eb;
+    --blue:#2563eb; --green:#16a34a; --amber:#b45309; --radius:12px; --space:16px;
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial;
+  }
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font)}
+  .wrap{max-width:1080px;margin:40px auto;padding:0 var(--space)}
+  .brand{font-weight:700;letter-spacing:.2px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+  .kicker{color:var(--muted);font-size:13px;margin-bottom:6px}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  label{display:block;font-weight:600;margin-bottom:6px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit}
+  .btn{appearance:none;border:1px solid var(--blue);background:var(--blue);color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+  .btn.secondary{background:#fff;color:var(--blue)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .row{display:grid;gap:10px;grid-template-columns:1fr auto}
+  .logs{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:13px;max-height:260px;overflow:auto;white-space:pre-wrap}
+  .table{width:100%;border-collapse:collapse;font-size:14px}
+  .table th,.table td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+  .status{display:inline-flex;align-items:center;gap:6px;font-size:13px;border-radius:999px;padding:6px 10px;border:1px solid var(--line);background:#fff}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+  .dot.green{background:var(--green)} .dot.orange{background:var(--amber)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;font-size:12px}
+  footer{margin-top:24px;color:var(--muted);font-size:12px}
+  details{border:1px solid var(--line);border-radius:10px;background:#fff}
+  details summary{cursor:pointer;padding:10px 12px;font-weight:600}
+  details .pad{padding:10px 12px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+    <div>
+      <div class="brand">Pentest → Fix → Verify</div>
+      <div class="kicker">Static mock • simulates API calls</div>
+    </div>
+    <nav style="display:flex;gap:12px;align-items:center">
+      <a href="support_tickets.html" style="text-decoration:none;color:var(--blue);font-weight:600">Support Tickets</a>
+      <a href="failing_website_mock.html" style="text-decoration:none;color:var(--blue);font-weight:600">Failing Website Mock</a>
+      <a href="IMPLEMENT" style="text-decoration:none;color:var(--blue);font-weight:600">IMPLEMENT</a>
+      <div class="status"><span id="gate-dot" class="dot"></span><span id="gate-text">Gate: pending</span></div>
+    </nav>
+  </header>
+
+  <!-- A. Scope + inputs -->
+  <section class="card">
+    <div class="kicker">A</div>
+    <h2 style="margin:6px 0 10px">Kickoff & Scope</h2>
+    <div class="grid">
+      <div><label>Preview URL</label><input id="previewUrl" placeholder="https://preview.example.com/pr-1234"/></div>
+      <div><label>Repository</label><input id="repo" placeholder="org/app"/></div>
+      <div><label>Scope</label>
+        <select id="scope"><option value="quick" selected>Quick</option><option value="thorough">Thorough</option></select>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn" id="btnPentest">Run Pentest</button>
+      <button class="btn secondary" id="btnPR" disabled>Create PR</button>
+      <button class="btn secondary" id="btnVerify" disabled>Verify & Gate</button>
+      <button class="btn secondary" id="btnExport" disabled>Export Single Slide</button>
+    </div>
+    <div class="chips" style="margin-top:10px">
+      <span class="chip">Stytch passkeys</span>
+      <span class="chip">NodeZero MCP</span>
+      <span class="chip">RedisVL</span>
+      <span class="chip">Qodo/PR-Agent</span>
+      <span class="chip">GitHub REST</span>
+      <span class="chip">AWS preview</span>
+      <span class="chip">HoneyHive gate</span>
+      <span class="chip">Gladia → LlamaIndex → Airia</span>
+    </div>
+  </section>
+
+  <!-- B. RedisVL ticket similarity & prioritization -->
+  <section style="margin-top:12px" class="card">
+    <div class="kicker">B</div>
+    <h2 style="margin:6px 0 10px">Support-Ticket Similarity (RedisVL) → Prioritized Pages</h2>
+    <div class="grid">
+      <div class="row">
+        <input id="tickets" placeholder="Paste sample support tickets (one per line)"/>
+        <button class="btn secondary" id="btnAnalyze">Analyze Tickets</button>
+      </div>
+    </div>
+    <p style="margin:8px 0"><a href="support_tickets.html" style="color:var(--blue);font-weight:600">Open support tickets mock</a> for example inputs.</p>
+    <p class="kicker" style="margin-top:8px">Output: ranked pages with probable failure modes, clustered by similarity.</p>
+    <div style="overflow:auto">
+      <table class="table" id="prioTable">
+        <thead>
+          <tr><th>#</th><th>Page/Route</th><th>Likely Failure</th><th>Signals</th><th>Related Pages</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5" style="color:var(--muted)">No analysis yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- C. Activity log -->
+  <section style="margin-top:12px" class="card">
+    <div class="kicker">C</div>
+    <h2 style="margin:6px 0 10px">Activity</h2>
+    <div class="logs" id="logs">Ready.</div>
+  </section>
+
+  <!-- D. APIs used (always visible for clarity) -->
+  <section style="margin-top:12px" class="card">
+    <div class="kicker">D</div>
+    <h2 style="margin:6px 0 10px">APIs in use (mock)</h2>
+    <ul style="margin:0 0 6px 18px">
+      <li>Auth: Stytch WebAuthn</li>
+      <li>Pentest & Verify: Horizon3 NodeZero MCP</li>
+      <li>Similarity/Index: RedisVL</li>
+      <li>PR/Labels: GitHub REST</li>
+      <li>Preview: AWS (ECS Copilot or Lambda URL)</li>
+      <li>Gate: HoneyHive</li>
+      <li>Postmortem: Gladia → LlamaIndex → Airia</li>
+    </ul>
+    <details style="margin-top:8px">
+      <summary>Show mock request bodies</summary>
+      <div class="pad">
+        <code>POST /pentest/start {"target_url": "...", "scope": "quick"}</code><br/>
+        <code>POST /tickets/prioritize {"topk": 200}</code><br/>
+        <code>POST /pr/create {"repo": "org/app", "finding_id": "F...", "tests": "auto"}</code><br/>
+        <code>POST /verify/run {"repo": "org/app", "pr": 123}</code><br/>
+        <code>POST /postmortem/slide {"call_url": "...", "pr": 123, "job_id": "J..."} </code>
+      </div>
+    </details>
+  </section>
+
+  <footer>Buttons simulate calls only; wire to your backend when ready.</footer>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const logs = $('logs'), prioTable = $('prioTable').querySelector('tbody');
+  const gateDot = $('gate-dot'), gateText = $('gate-text');
+  const btnPentest = $('btnPentest'), btnPR = $('btnPR'), btnVerify = $('btnVerify'), btnExport = $('btnExport');
+  const btnAnalyze = $('btnAnalyze');
+
+  function log(line){ const ts = new Date().toLocaleTimeString(); logs.textContent += `\n[${ts}] ${line}`; logs.scrollTop = logs.scrollHeight; }
+
+  function setGate(status){ gateDot.classList.remove('orange','green'); if(status==='passed'){ gateDot.classList.add('green'); gateText.textContent='Gate: passed'; } else { gateDot.classList.add('orange'); gateText.textContent='Gate: pending'; } }
+  setGate('pending');
+
+  // B. Fake RedisVL analysis -> Prioritization list
+  btnAnalyze.addEventListener('click', ()=>{
+    prioTable.innerHTML='';
+    const sample = [
+      {page:'/checkout', fail:'Payment timeout / 502', signals:'12 similar tickets, spike past 24h', related:'/cart, /api/pay'},
+      {page:'/search', fail:'Reflected XSS param "q"', signals:'NodeZero hint + 7 tickets', related:'/product, /search/suggest'},
+      {page:'/login', fail:'CSRF invalid state', signals:'6 tickets, auth logs', related:'/signup, /auth/callback'}
+    ];
+    sample.forEach((r,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i+1}</td><td>${r.page}</td><td>${r.fail}</td><td>${r.signals}</td><td>${r.related}</td>`;
+      prioTable.appendChild(tr);
+    });
+    log('RedisVL: built embeddings for N tickets; clustered and ranked pages by failure likelihood.');
+  });
+
+  // A/C. Simulated flow
+  btnPentest.addEventListener('click', ()=>{
+    const url = $('previewUrl').value.trim(); if(!url) return alert('Enter a preview URL.');
+    btnPentest.disabled = true; log(`POST /pentest/start { target_url: "${url}", scope: "${$('scope').value}" }`);
+    setTimeout(()=>log('Pentest job started: job_7f3c… (polling)'),600);
+    setTimeout(()=>{ log('Finding: CWE-079 on /search?q=… • exploitable • evidence: https://…/proof'); btnPR.disabled=false; },1400);
+  });
+
+  btnPR.addEventListener('click', ()=>{
+    const repo = $('repo').value.trim(); if(!repo) return alert('Enter a repository (e.g., org/app).');
+    btnPR.disabled = true; log(`POST /pr/create { repo: "${repo}", tickets_topk: 200 }`);
+    setTimeout(()=>log('Qodo: generated failing tests + minimal patch'),900);
+    setTimeout(()=>{ log('PR opened: https://github.com/'+repo+'/pull/123'); btnVerify.disabled=false; },1400);
+  });
+
+  btnVerify.addEventListener('click', ()=>{
+    btnVerify.disabled = true; log('CI: building preview on AWS…');
+    setTimeout(()=>log('NodeZero verify: targeted checks passed (proof-of-fix attached)'),1200);
+    setTimeout(()=>{ setGate('passed'); log('HoneyHive gate: ✅ passed'); btnExport.disabled=false; },1600);
+  });
+
+  btnExport.addEventListener('click', ()=>{
+    btnExport.disabled = true; log('Gladia → LlamaIndex → Airia: composed single-slide postmortem (pptx)');
+    setTimeout(()=>log('Slide URL: https://…/postmortem.pptx'),900);
+  });
+</script>
+</body>
+</html>

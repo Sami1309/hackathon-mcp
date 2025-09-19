@@ -1,0 +1,103 @@
+Pentest → Fix → Verify (FFV) — Step‑by‑Step Implementation Guide
+
+Overview
+- Goal: Kick off a NodeZero pentest on a preview URL, mine support tickets with RedisVL to prioritize likely‑broken pages, open a PR with failing tests + minimal fix, re‑verify on an AWS preview, gate merge with HoneyHive, and export a single postmortem slide (Gladia → LlamaIndex → Airia).
+- Demo approach: Ship a clean frontend that mocks the full FFV loop, then progressively swap mocks for real integrations behind a small API.
+
+High‑Level Architecture
+- Frontend: Static site (index.html) driving FFV flow with clear logs and status.
+- Backend API (FastAPI/Express) with thin typed clients (one per provider):
+  - POST /tickets/prioritize → RedisVL
+  - POST /pentest/start, GET /pentest/result → NodeZero MCP
+  - POST /pr/create → GitHub + Qodo
+  - POST /verify/run → AWS preview + NodeZero verify + HoneyHive gate
+  - POST /postmortem/slide → Gladia → LlamaIndex → Airia
+- Infra: Local Redis Stack for RedisVL; GitHub Actions for preview; AWS ECS Copilot or containerized Lambda URL for ephemeral env.
+
+What To Build First (Fast 90‑minute path)
+1) Frontend mock (already included)
+   - index.html: Inputs for target/preview URL, repo; buttons: Run Pentest → Create PR → Verify & Gate → Export Slide.
+   - Visible logs and a RedisVL “prioritized pages” table (mocked data) to ground fixes.
+2) Ticket prioritization (local only)
+   - Implement POST /tickets/prioritize using RedisVL. Embed sample tickets, cluster (connected components/Louvain), extract route hints (/checkout,/search), return ranked list.
+3) Pentest stubs
+   - Implement POST /pentest/start and GET /pentest/result calling NodeZero MCP in dev. For the hackathon, return a canned exploitable finding if real creds aren’t configured.
+4) PR creation with tests
+   - Implement POST /pr/create. Use GitHub REST to raise a PR; optionally use Qodo PR‑Agent/Merge to draft failing tests + minimal patch. Mock by returning a fake PR URL.
+5) Verify & gate
+   - Implement POST /verify/run. Build preview (ECS Copilot or Lambda URL), run NodeZero “verify” on that preview URL, and post a HoneyHive eval result. Mock by flipping the “Gate: passed” UI and returning a proof‑of‑fix link.
+6) Single‑slide postmortem
+   - Implement POST /postmortem/slide. Given a call/audio (or sample), extract timeline via LlamaIndex and generate a PPTX via Airia. Mock by returning a placeholder slide URL.
+
+Mocks vs. Real Integrations (swap independently)
+- Auth (Stytch passkeys):
+  - Mock: no‑auth UI, assume signed‑in.
+  - Real: /auth/* routes for WebAuthn bootstrap + session.
+- NodeZero MCP (pentest & verify):
+  - Mock: canned job_id and one CWE‑079 finding with evidence URL.
+  - Real: call MCP server (startAssessment/poll/findings) scoped to the preview URL.
+- RedisVL (ticket prioritization):
+  - Mock: prefilled table rows based on sample text.
+  - Real: local Redis Stack + embeddings + clustering pipeline.
+- GitHub + Qodo:
+  - Mock: synthesize PR URL (e.g., https://github.com/org/app/pull/123).
+  - Real: create branch, commit patch/tests, open PR; optionally call Qodo for tests.
+- AWS preview (ECS Copilot or Lambda URL):
+  - Mock: pretend preview URL built; reuse input preview URL.
+  - Real: CI job builds preview, returns unique URL per PR.
+- HoneyHive (gate):
+  - Mock: set UI gate to “passed”.
+  - Real: create eval run, attach traces, and record pass/fail used to gate merge.
+- Gladia → LlamaIndex → Airia (postmortem):
+  - Mock: static PPTX link.
+  - Real: transcribe, extract timeline, generate one‑slide PPTX artifact.
+
+API Contracts (minimal)
+- POST /tickets/prioritize
+  - Body: { tickets: [{id,title,body}], topk?: number }
+  - Return: { priorities: [{ path, failure, score, signals, related_paths }] }
+- POST /pentest/start → { job_id }
+- GET /pentest/result?job_id=… → { finding: { id, cwe, route, evidence_url, severity } }
+- POST /pr/create → { pr_url, branch }
+- POST /verify/run → { verify_passed: boolean, proof_url, honeyhive_trace }
+- POST /postmortem/slide → { slide_url }
+
+Suggested Directory Layout (thin demo)
+- services/api: app + routes (auth, pentest, pr, verify, postmortem) and typed clients.
+- services/rag: small RedisVL scripts to index/query sample tickets.
+- ci/github: actions for create‑pr and verify‑and‑gate; scripts for preview build and verify.
+- data: sample_tickets.jsonl, sample_call_audio.wav.
+
+Environment/Secrets (.env)
+- STYTCH_PROJECT_ID, STYTCH_SECRET
+- H3_API_TOKEN, H3_ORG_ID
+- GITHUB_APP_ID, GITHUB_INSTALLATION_ID, GITHUB_PRIVATE_KEY
+- HONEYHIVE_API_KEY, QODO_API_KEY
+- REDIS_URL=redis://localhost:6379
+- GLADIA_API_KEY, AWS_REGION
+
+Acceptance Criteria (judge‑ready)
+- Tickets → Priorities table appears from pasted tickets with route‑level grouping (RedisVL or mocked equivalent).
+- FFV demo completes with: PR link, verify “proof‑of‑fix”, and HoneyHive gate = passed (mock or real).
+- Export returns a one‑slide PPTX link with PR URL, NodeZero proof, and HoneyHive trace (mock or real).
+
+Demo Script (3 clicks)
+1) Pentest: Enter preview URL → Run Pentest → show one exploitable finding.
+2) Fix PR: Click Create PR → show PR URL + tests mention.
+3) Verify & Gate: Click Verify & Gate → gate flips to “passed” → Export Single Slide.
+
+“Failing Website” Guide (for FFV practice)
+- Use failing_website_mock.html as the example app referenced by support tickets.
+- Known issues: reflected XSS on /search?q=, flaky checkout timing (simulated 502), login CSRF notes.
+- Run FFV against this mock to illustrate the full loop end‑to‑end without external dependencies.
+
+Next Swaps (turn mocks into real)
+- Replace RedisVL mock table with a call to /tickets/prioritize backed by Redis Stack.
+- Wire NodeZero MCP for real start/poll/result; feed “verify” step the preview URL.
+- Use GitHub App creds to create a real PR; call Qodo for tests.
+- Add CI workflow to publish preview to ECS or Lambda URL; post HoneyHive eval.
+- Produce a real PPTX via Airia using Gladia transcript and LlamaIndex timeline.
+
+Notes
+- Keep each integration behind a tiny client with retries + idempotency to swap mocks safely.
+- Preserve explicit logs in UI for auditability and to showcase tool usage.

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Support Tickets</title>
+  
+   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+
+   <style>
+       body {
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+           background-color: #f4f7f9;
+           color: #333;
+           margin: 0;
+           padding: 20px;
+       }
+
+
+       .container {
+           max-width: 1000px;
+           margin: 40px auto;
+           padding: 20px;
+           background-color: #ffffff;
+           border-radius: 8px;
+           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+       }
+
+
+       h1 {
+           color: #1a253c;
+           text-align: center;
+           margin-bottom: 30px;
+       }
+
+
+       table {
+           width: 100%;
+           border-collapse: collapse;
+           margin-top: 20px;
+       }
+
+
+       th, td {
+           padding: 12px 15px;
+           text-align: left;
+           border-bottom: 1px solid #e0e0e0;
+       }
+
+
+       thead th {
+           background-color: #f8f9fa;
+           font-weight: 600;
+           color: #555;
+       }
+
+
+       tbody tr:hover {
+           background-color: #f1f1f1;
+       }
+
+
+       /* Badge styles for status and priority */
+       .badge {
+           padding: 4px 10px;
+           border-radius: 12px;
+           font-size: 0.8rem;
+           font-weight: 500;
+           color: #fff;
+           text-transform: uppercase;
+       }
+
+
+       /* Status Colors */
+       .badge-open { background-color: #28a745; /* Green */ }
+       .badge-in-progress { background-color: #007bff; /* Blue */ }
+       .badge-closed { background-color: #6c757d; /* Gray */ }
+
+
+       /* Priority Colors */
+       .badge-high { background-color: #dc3545; /* Red */ }
+       .badge-medium { background-color: #ffc107; color: #212529; /* Yellow */ }
+       .badge-low { background-color: #17a2b8; /* Teal */ }
+   </style>
+</head>
+<body>
+  
+   <div id="root"></div>
+
+
+   <script type="text/babel">
+     const { useState } = React;
+
+
+     function App() {
+       // Mock data for the support tickets (link to failing website examples)
+       const [tickets, setTickets] = useState([
+         {
+           id: "TKT-101",
+           subject: "Search results show raw HTML when I paste a tag",
+           status: "Open",
+           priority: "High",
+           submitted: "2025-09-19",
+           exampleUrl: "failing_website_mock.html?tab=search&q=%3Cimg%20src%3Dx%20onerror%3Dalert('xss')%3E",
+         },
+         {
+           id: "TKT-102",
+           subject: "Checkout keeps timing out with 502",
+           status: "In Progress",
+           priority: "High",
+           submitted: "2025-09-19",
+           exampleUrl: "failing_website_mock.html?tab=checkout&fail=1",
+         },
+         {
+           id: "TKT-103",
+           subject: "Login redirected but then fails with invalid state",
+           status: "Open",
+           priority: "Medium",
+           submitted: "2025-09-18",
+           exampleUrl: "failing_website_mock.html?tab=login",
+         },
+         {
+           id: "TKT-104",
+           subject: "Feature request: Dark mode",
+           status: "Open",
+           priority: "Low",
+           submitted: "2025-09-19",
+         },
+         {
+           id: "TKT-105",
+           subject: "Billing invoice mismatch",
+           status: "Closed",
+           priority: "Low",
+           submitted: "2025-09-17",
+         },
+       ]);
+
+
+       // Helper function to get a CSS class based on status or priority
+       const getBadgeClass = (type) => {
+         return `badge-${type.toLowerCase().replace(" ", "-")}`;
+       };
+
+
+       return (
+         <div className="container">
+          <h1>Support Tickets 🎫</h1>
+          <p style={{textAlign:'center',color:'#6b7280'}}>These mock tickets link to the failing website example to drive an FFV cycle.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Submission Date</th>
+                <th>Example URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tickets.map((ticket) => (
+                <tr key={ticket.id}>
+                  <td>{ticket.id}</td>
+                  <td>{ticket.subject}</td>
+                  <td>
+                    <span className={`badge ${getBadgeClass(ticket.status)}`}>
+                      {ticket.status}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`badge ${getBadgeClass(ticket.priority)}`}>
+                      {ticket.priority}
+                    </span>
+                  </td>
+                  <td>{ticket.submitted}</td>
+                  <td>
+                    {ticket.exampleUrl ? (
+                      <a href={ticket.exampleUrl} target="_blank" rel="noreferrer">Open</a>
+                    ) : (
+                      <span style={{color:'#9ca3af'}}>—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+         </div>
+       );
+     }
+
+
+     const container = document.getElementById('root');
+     const root = ReactDOM.createRoot(container);
+     root.render(<App />);
+   </script>
+
+
+</body>
+</html>

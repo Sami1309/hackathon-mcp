@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Failing Website Mock</title>
+  <style>
+    :root{
+      --bg:#f6f7f9; --panel:#fff; --ink:#0a0a0a; --muted:#6b7280; --line:#e5e7eb;
+      --blue:#2563eb; --green:#16a34a; --red:#dc2626; --amber:#b45309; --radius:12px; --space:16px;
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial;
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font)}
+    .wrap{max-width:980px;margin:40px auto;padding:0 var(--space)}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 1px 0 rgba(0,0,0,.04);margin-bottom:12px}
+    .brand{font-weight:700}
+    .kicker{color:var(--muted);font-size:13px;margin-bottom:6px}
+    .row{display:grid;gap:8px;grid-template-columns:1fr auto}
+    input,button{font:inherit}
+    input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+    .btn{appearance:none;border:1px solid var(--blue);background:var(--blue);color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    .btn.secondary{background:#fff;color:var(--blue)}
+    .note{color:var(--muted);font-size:13px}
+    .error{color:#fff;background:var(--red);padding:8px 10px;border-radius:8px}
+    .ok{color:#065f46;background:#d1fae5;padding:8px 10px;border-radius:8px}
+    code{background:#f3f4f6;padding:2px 6px;border-radius:6px}
+    ul{margin:8px 0 0 18px}
+    a{color:var(--blue)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div>
+        <div class="brand">Failing Website Mock</div>
+        <div class="kicker">Use this page as the “broken app” referenced by support tickets.</div>
+      </div>
+      <nav style="display:flex;gap:12px;align-items:center">
+        <a href="index.html">FFV Flow</a>
+        <a href="support_tickets.html">Support Tickets</a>
+      </nav>
+    </header>
+
+    <!-- 1) Reflected XSS on /search?q= -->
+    <section class="card">
+      <div class="kicker">1</div>
+      <h2 style="margin:6px 0 10px">Search — reflected XSS (simulated)</h2>
+      <div class="row">
+        <input id="searchInput" placeholder="Try: <img src=x onerror=alert('xss')>"/>
+        <button class="btn" id="btnReflect">Search</button>
+      </div>
+      <p class="note" style="margin-top:6px">Query param <code>q</code> is reflected without escaping into innerHTML. In this mock, we do not execute arbitrary HTML for safety — we show what would have been rendered.</p>
+      <div id="searchResult" style="margin-top:10px;border:1px dashed var(--line);padding:10px;border-radius:8px"></div>
+      <details style="margin-top:10px"><summary><strong>Fix suggestion</strong></summary>
+        <div class="note" style="padding-top:8px">
+          - Escape or sanitize user input before rendering; avoid <code>innerHTML</code> for untrusted data.<br/>
+          - Add CSP headers to reduce XSS impact.
+        </div>
+      </details>
+    </section>
+
+    <!-- 2) Checkout flakiness / 502 -->
+    <section class="card">
+      <div class="kicker">2</div>
+      <h2 style="margin:6px 0 10px">Checkout — intermittent 502/timeout (simulated)</h2>
+      <button class="btn" id="btnCheckout">Place order</button>
+      <div id="checkoutStatus" style="margin-top:10px"></div>
+      <details style="margin-top:10px"><summary><strong>Fix suggestion</strong></summary>
+        <div class="note" style="padding-top:8px">
+          - Add retries with idempotency keys to payment calls; tighten upstream timeouts and circuit breakers.<br/>
+          - Emit structured logs and SLOs; surface 5xx spikes to prioritization.
+        </div>
+      </details>
+    </section>
+
+    <!-- 3) Login CSRF notes -->
+    <section class="card">
+      <div class="kicker">3</div>
+      <h2 style="margin:6px 0 10px">Login — CSRF protection missing (illustrative)</h2>
+      <form onsubmit="return false" class="row">
+        <input placeholder="Email"/>
+        <button class="btn secondary" disabled>Sign in</button>
+      </form>
+      <p class="error" style="margin-top:10px">Warning: CSRF token not present/validated (illustrative).</p>
+      <details style="margin-top:10px"><summary><strong>Fix suggestion</strong></summary>
+        <div class="note" style="padding-top:8px">
+          - Include anti‑CSRF tokens and SameSite=strict cookies; validate origin/referrer.
+        </div>
+      </details>
+    </section>
+
+    <footer class="note">Tip: Kick off the FFV flow from <a href="index.html">index.html</a> using this page as the “preview URL”. Example: <code>file://.../failing_website_mock.html?tab=search&q=%26lt%3Bimg...%26gt%3B</code></footer>
+  </div>
+
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const $ = (id) => document.getElementById(id);
+
+    // 1) Reflected XSS (safe simulation)
+    const q = qs.get('q') || '';
+    if(q) $('searchInput').value = q;
+    const renderReflected = () => {
+      const val = $('searchInput').value;
+      // Show what would have been dangerously set as innerHTML
+      $('searchResult').innerHTML = `<div class="error">[Simulated] Unsafe reflection would render:</div>` +
+        `<div style="margin-top:6px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff"><code>${val.replaceAll('<','&lt;').replaceAll('>','&gt;')}</code></div>`;
+    };
+    $('btnReflect').addEventListener('click', renderReflected);
+    if(q) renderReflected();
+
+    // 2) Checkout flakiness (simulated 502)
+    const alwaysFail = qs.get('fail') === '1';
+    $('btnCheckout').addEventListener('click', () => {
+      const r = alwaysFail ? 0 : Math.random();
+      const el = $('checkoutStatus');
+      if(r < 0.4){
+        el.innerHTML = '<div class="error">Payment timeout / 502 — please retry</div>';
+      } else {
+        el.innerHTML = '<div class="ok">Order placed successfully</div>';
+      }
+    });
+  </script>
+</body>
+</html>
+
