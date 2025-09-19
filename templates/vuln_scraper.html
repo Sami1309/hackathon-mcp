@@ -182,6 +182,7 @@
 let vulnerabilitiesData = [];
 let ticketsData = [];
 let vectorDBCreated = false;
+let currentAnalysisResults = null;
 
 // Initialize with sample tickets data
 ticketsData = [
@@ -389,6 +390,9 @@ async function runAICorrelation() {
         const result = await response.json();
 
         if (result.success) {
+            // Store analysis results for pentest creation
+            currentAnalysisResults = result;
+
             analysisSection.innerHTML = `
                 <div class="row">
                     <div class="col-md-6">
@@ -431,9 +435,46 @@ async function runAICorrelation() {
     }
 }
 
-function startPentestFromAnalysis() {
-    alert('Launching pentest on priority vulnerability targets...');
-    window.location.href = '/pentests';
+async function startPentestFromAnalysis() {
+    if (!currentAnalysisResults) {
+        alert('No analysis results found. Please run AI correlation first.');
+        return;
+    }
+
+    try {
+        // Show loading state
+        const button = event.target;
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-spinner-border spinner-border-sm"></i> Creating Pentest Job...';
+
+        // Call the new endpoint to create pentest job
+        const response = await fetch('/create_pentest_from_analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                priority_vulnerabilities: currentAnalysisResults.priority_vulnerabilities,
+                analysis: currentAnalysisResults.analysis
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Show success message and redirect
+            alert(`Pentest job created successfully!\n${result.message}`);
+            window.location.href = '/pentests';
+        } else {
+            throw new Error(result.error || 'Failed to create pentest job');
+        }
+
+    } catch (error) {
+        alert(`Failed to create pentest job: ${error.message}`);
+
+        // Reset button
+        const button = event.target;
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-play-circle"></i> Start Pentest on Priority Targets';
+    }
 }
 </script>
 {% endblock %}
